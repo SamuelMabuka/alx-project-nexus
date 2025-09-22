@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from decouple import config, Csv
 from datetime import timedelta
@@ -93,16 +94,40 @@ DATABASES = {
     )
 }
 
-# Cache configuration with Redis
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL', default='redis://127.0.0.1:6379/0'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+# Use SQLite for testing to avoid PostgreSQL dependency
+if 'test' in sys.argv:
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:'
+    }
+    # Use dummy cache for testing to avoid Redis dependency
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-}
+
+# Cache configuration with Redis
+REDIS_URL = config('REDIS_URL', default='redis://127.0.0.1:6379/0')
+
+# Use dummy cache if Redis URL is not properly configured or in development
+if REDIS_URL.startswith('redis://') or REDIS_URL.startswith('rediss://'):
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': REDIS_URL,
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        }
+    }
+else:
+    # Fallback to dummy cache for development
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+        }
+    }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

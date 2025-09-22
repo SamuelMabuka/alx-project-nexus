@@ -29,7 +29,7 @@ class TMDbService:
             response = self.session.get(url, params=params or {})
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             logger.error(f"TMDb API request failed: {e}")
             return None
     
