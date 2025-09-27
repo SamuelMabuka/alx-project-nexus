@@ -1,4 +1,4 @@
-# Nexus Movie Recommendation API
+# Movie Recommendation API
 
 **A production-ready movie recommendation system with JWT authentication, personalized features, and comprehensive API documentation.**
 
