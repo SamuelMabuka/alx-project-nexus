@@ -1,76 +1,44 @@
 # movies/urls.py
 from django.urls import path
-from .views import (
-    # Movie data views
-    GenreListView,
-    PopularMoviesView,
-    TrendingMoviesView,
-    MovieDetailView,
-    MovieSearchView,
-    SimilarMoviesView,
-    
-    # User interaction views
-    FavoriteMoviesView,
-    ToggleFavoriteView,
-    UserRatingsView,
-    RateMovieView,
-    UserWatchlistView,
-    ToggleWatchlistView,
-    
-    # Preferences and recommendations
-    UserPreferencesView,
-    RecommendationsView,
-    
-    # Statistics
-    user_movie_stats,
-)
+from django.http import JsonResponse
+from . import views
 
-# URL patterns for movies app
+def movies_info(request):
+    """Base movies info endpoint."""
+    return JsonResponse({
+        'message': 'Nexus Movie API - Movies Service',
+        'version': '1.0.0',
+        'endpoints': {
+            'info': '/api/movies/',
+            'genres': '/api/movies/genres/',
+            'popular': '/api/movies/popular/',
+            'trending': '/api/movies/trending/',
+            'search': '/api/movies/search/',
+            'movie_detail': '/api/movies/<id>/',
+        },
+        'features': {
+            'tmdb_integration': 'The Movie Database API',
+            'user_favorites': 'Personal movie collections',
+            'ratings': 'User movie ratings',
+            'recommendations': 'Personalized suggestions'
+        },
+        'status': 'available',
+        'authentication': {
+            'public_endpoints': ['genres', 'popular', 'trending', 'search', 'movie_detail'],
+            'auth_required': ['favorites', 'ratings', 'watchlist', 'recommendations']
+        }
+    })
+
 urlpatterns = [
-    # ==========================================
-    # MOVIE DATA ENDPOINTS (Public Access)
-    # ==========================================
+    # Base movies info endpoint
+    path('', movies_info, name='movies-info'),
     
-    # Genres
-    path('genres/', GenreListView.as_view(), name='movie-genres'),
-    
-    # Movie discovery
-    path('popular/', PopularMoviesView.as_view(), name='popular-movies'),
-    path('trending/', TrendingMoviesView.as_view(), name='trending-movies'),
-    path('search/', MovieSearchView.as_view(), name='search-movies'),
-    
-    # Individual movies
-    path('<int:movie_id>/', MovieDetailView.as_view(), name='movie-detail'),
-    path('<int:movie_id>/similar/', SimilarMoviesView.as_view(), name='similar-movies'),
-    
-    # ==========================================
-    # USER INTERACTION ENDPOINTS (Auth Required)
-    # ==========================================
-    
-    # Favorites management
-    path('favorites/', FavoriteMoviesView.as_view(), name='user-favorites'),
-    path('<int:movie_id>/favorite/', ToggleFavoriteView.as_view(), name='toggle-favorite'),
-    
-    # Ratings management
-    path('ratings/', UserRatingsView.as_view(), name='user-ratings'),
-    path('<int:movie_id>/rate/', RateMovieView.as_view(), name='rate-movie'),
-    
-    # Watchlist management
-    path('watchlist/', UserWatchlistView.as_view(), name='user-watchlist'),
-    path('<int:movie_id>/watchlist/', ToggleWatchlistView.as_view(), name='toggle-watchlist'),
-    
-    # ==========================================
-    # PERSONALIZATION ENDPOINTS (Auth Required)
-    # ==========================================
-    
-    # User preferences
-    path('preferences/', UserPreferencesView.as_view(), name='user-preferences'),
-    
-    # Recommendations
-    path('recommendations/', RecommendationsView.as_view(), name='movie-recommendations'),
-    
-    # Statistics
-    path('stats/', user_movie_stats, name='user-movie-stats'),
+    # Public movie endpoints
+    path('genres/', views.genres_list, name='genres-list'),
+    path('popular/', views.popular_movies, name='popular-movies'),
+    path('trending/', views.trending_movies, name='trending-movies'),
+    path('search/', views.search_movies, name='search-movies'),
+    path('<int:movie_id>/', views.movie_detail, name='movie-detail'),
 ]
 
 """

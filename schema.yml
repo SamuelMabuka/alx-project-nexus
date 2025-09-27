@@ -1,0 +1,1646 @@
+openapi: 3.0.3
+info:
+  title: Nexus Movie Recommendation API
+  version: 1.0.0
+  x-api-id: nexus-movie-api
+  description: A comprehensive movie recommendation system powered by TMDb API. Features
+    user authentication, movie discovery, personalized recommendations, favorites,
+    ratings, and watchlist management.
+  contact:
+    name: Nexus Development Team
+    email: dev@nexus-movies.com
+  license:
+    name: MIT License
+paths:
+  /api/auth/change-password/:
+    post:
+      operationId: auth_change_password_create
+      description: Change user password
+      tags:
+      - User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Custom JWT token view that adds user info to response
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CustomTokenObtainPairRequest'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/auth/logout/:
+    post:
+      operationId: auth_logout_create
+      description: Logout user by blacklisting refresh token
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LogoutRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '205':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/auth/profile/:
+    get:
+      operationId: auth_profile_retrieve
+      description: Get or update user profile
+      tags:
+      - User Profile
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+    put:
+      operationId: auth_profile_update
+      description: Get or update user profile
+      tags:
+      - User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserProfileRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+    patch:
+      operationId: auth_profile_partial_update
+      description: Get or update user profile
+      tags:
+      - User Profile
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserProfileRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Register a new user account
+      tags:
+      - Authentication
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistrationRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+                description: Unspecified response body
+          description: ''
+  /api/movies/{movie_id}/:
+    get:
+      operationId: movies_retrieve
+      description: Get comprehensive movie information
+      summary: Get Movie Details
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieDetail'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/{movie_id}/favorite/:
+    post:
+      operationId: movies_favorite_create
+      description: Add or remove a movie from favorites
+      summary: Toggle Movie Favorite
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/{movie_id}/rate/:
+    post:
+      operationId: movies_rate_create
+      description: Rate a movie from 1-5 stars with optional review
+      summary: Rate Movie
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RatingCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RatingCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RatingCreateUpdateRequest'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Rating'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    delete:
+      operationId: movies_rate_destroy
+      description: Remove rating for a movie
+      summary: Delete Movie Rating
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/{movie_id}/similar/:
+    get:
+      operationId: movies_similar_list
+      description: Get movies similar to a specific movie
+      summary: Get Similar Movies
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieList'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/{movie_id}/watchlist/:
+    post:
+      operationId: movies_watchlist_create
+      description: Add or remove a movie from watchlist
+      summary: Toggle Movie Watchlist
+      parameters:
+      - in: path
+        name: movie_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - movies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WatchlistCreateUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WatchlistCreateUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WatchlistCreateUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+          description: ''
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/favorites/:
+    get:
+      operationId: movies_favorites_list
+      description: List all movies the current user has favorited
+      summary: Get User's Favorite Movies
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFavoriteList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/genres/:
+    get:
+      operationId: movies_genres_list
+      description: Get all available movie genres from TMDb
+      summary: List Movie Genres
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedGenreList'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/popular/:
+    get:
+      operationId: movies_popular_retrieve
+      description: Fetch popular movies from TMDb API with pagination
+      summary: Get Popular Movies
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+        description: 'Page number (default: 1)'
+      - in: query
+        name: refresh
+        schema:
+          type: boolean
+          default: false
+        description: Force refresh from TMDb API
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieSearchResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/preferences/:
+    get:
+      operationId: movies_preferences_retrieve
+      description: Get current user's movie preferences
+      summary: Get User Movie Preferences
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreference'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+    put:
+      operationId: movies_preferences_update
+      description: Update current user's movie preferences
+      summary: Update User Movie Preferences
+      tags:
+      - movies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserPreferenceUpdateRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserPreferenceUpdateRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserPreferenceUpdateRequest'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPreference'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/ratings/:
+    get:
+      operationId: movies_ratings_list
+      description: List all movies the current user has rated
+      summary: Get User's Movie Ratings
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedRatingList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/recommendations/:
+    get:
+      operationId: movies_recommendations_list
+      description: Get movie recommendations based on user preferences and history
+      summary: Get Personalized Movie Recommendations
+      parameters:
+      - in: query
+        name: limit
+        schema:
+          type: integer
+          default: 20
+        description: 'Number of recommendations (default: 20, max: 50)'
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/search/:
+    get:
+      operationId: movies_search_retrieve
+      description: Search movies by title
+      summary: Search Movies
+      parameters:
+      - in: query
+        name: page
+        schema:
+          type: integer
+          default: 1
+        description: 'Page number (default: 1)'
+      - in: query
+        name: query
+        schema:
+          type: string
+        description: Search query
+        required: true
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MovieSearchResponse'
+          description: ''
+        '400':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/stats/:
+    get:
+      operationId: movies_stats_retrieve
+      description: |-
+        Get user's movie statistics.
+
+        Returns stats like total favorites, ratings, watchlist count, etc.
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/movies/trending/:
+    get:
+      operationId: movies_trending_list
+      description: Fetch trending movies from TMDb API
+      summary: Get Trending Movies
+      parameters:
+      - in: query
+        name: refresh
+        schema:
+          type: boolean
+          default: false
+        description: Force refresh from TMDb API
+      - in: query
+        name: time_window
+        schema:
+          type: string
+          enum:
+          - day
+          - week
+          default: day
+        description: 'Time window: "day" or "week"'
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MovieList'
+          description: ''
+        '500':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+  /api/movies/watchlist/:
+    get:
+      operationId: movies_watchlist_list
+      description: List all movies in the current user's watchlist
+      summary: Get User's Watchlist
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - movies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWatchlistList'
+          description: ''
+        '401':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: ''
+components:
+  schemas:
+    BlankEnum:
+      enum:
+      - ''
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          minLength: 1
+        new_password:
+          type: string
+          minLength: 1
+      required:
+      - new_password
+      - old_password
+    CustomTokenObtainPairRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - password
+    ErrorResponse:
+      type: object
+      description: Serializer for error responses.
+      properties:
+        error:
+          type: string
+        detail:
+          type: string
+        status_code:
+          type: integer
+      required:
+      - error
+    Favorite:
+      type: object
+      description: Serializer for Favorite model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        movie:
+          allOf:
+          - $ref: '#/components/schemas/MovieList'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - movie
+      - user_email
+    Genre:
+      type: object
+      description: Serializer for Genre model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tmdb_id:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          description: TMDb Genre ID
+        name:
+          type: string
+          description: Genre name
+          maxLength: 100
+        movie_count:
+          type: string
+          readOnly: true
+      required:
+      - id
+      - movie_count
+      - name
+      - tmdb_id
+    LogoutRequest:
+      type: object
+      properties:
+        refresh:
+          type: string
+          minLength: 1
+      required:
+      - refresh
+    MovieDetail:
+      type: object
+      description: |-
+        Serializer for movie detail views (comprehensive).
+
+        Contains all movie information including financial data,
+        production details, and user interactions.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tmdb_id:
+          type: integer
+          readOnly: true
+          description: TMDb Movie ID
+        title:
+          type: string
+          description: Movie title
+          maxLength: 255
+        original_title:
+          type: string
+          description: Original title in native language
+          maxLength: 255
+        overview:
+          type: string
+          description: Movie plot summary
+        tagline:
+          type: string
+          description: Movie tagline
+          maxLength: 255
+        release_date:
+          type: string
+          format: date
+          nullable: true
+          description: Movie release date
+        release_year:
+          type: string
+          readOnly: true
+        runtime:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          nullable: true
+          description: Runtime in minutes
+        status:
+          type: string
+          description: Movie status (Released, In Production, etc.)
+          maxLength: 20
+        vote_average:
+          type: number
+          format: double
+          maximum: 10.0
+          minimum: 0.0
+          description: Average rating from TMDb (0-10)
+        vote_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Number of votes on TMDb
+        popularity:
+          type: number
+          format: double
+          description: Popularity score from TMDb
+        rating_percentage:
+          type: string
+          readOnly: true
+        poster_path:
+          type: string
+          description: TMDb poster image path
+          maxLength: 255
+        poster_url:
+          type: string
+          readOnly: true
+        backdrop_path:
+          type: string
+          description: TMDb backdrop image path
+          maxLength: 255
+        backdrop_url:
+          type: string
+          readOnly: true
+        budget:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+          description: Movie budget in USD
+        revenue:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: -9223372036854775808
+          format: int64
+          nullable: true
+          description: Movie revenue in USD
+        imdb_id:
+          type: string
+          description: IMDb ID
+          maxLength: 20
+        original_language:
+          type: string
+          description: Original language code
+          maxLength: 10
+        production_countries:
+          description: List of production countries
+        spoken_languages:
+          description: List of spoken languages
+        adult:
+          type: boolean
+          description: Adult content flag
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+          readOnly: true
+        genre_list:
+          type: string
+          readOnly: true
+        is_favorited:
+          type: boolean
+          readOnly: true
+        user_rating:
+          type: integer
+          readOnly: true
+        is_in_watchlist:
+          type: boolean
+          readOnly: true
+        total_favorites:
+          type: integer
+          readOnly: true
+        average_user_rating:
+          type: number
+          format: double
+          readOnly: true
+        last_updated_from_tmdb:
+          type: string
+          format: date-time
+          readOnly: true
+          description: Last sync with TMDb
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - average_user_rating
+      - backdrop_url
+      - created_at
+      - genre_list
+      - genres
+      - id
+      - is_favorited
+      - is_in_watchlist
+      - last_updated_from_tmdb
+      - poster_url
+      - rating_percentage
+      - release_year
+      - title
+      - tmdb_id
+      - total_favorites
+      - user_rating
+    MovieList:
+      type: object
+      description: |-
+        Serializer for movie list views (lightweight).
+
+        Used for popular movies, trending movies, search results.
+        Contains only essential fields for performance.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        tmdb_id:
+          type: integer
+          readOnly: true
+          description: TMDb Movie ID
+        title:
+          type: string
+          description: Movie title
+          maxLength: 255
+        original_title:
+          type: string
+          description: Original title in native language
+          maxLength: 255
+        overview:
+          type: string
+          description: Movie plot summary
+        release_date:
+          type: string
+          format: date
+          nullable: true
+          description: Movie release date
+        release_year:
+          type: string
+          readOnly: true
+        vote_average:
+          type: number
+          format: double
+          maximum: 10.0
+          minimum: 0.0
+          description: Average rating from TMDb (0-10)
+        vote_count:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Number of votes on TMDb
+        popularity:
+          type: number
+          format: double
+          description: Popularity score from TMDb
+        poster_path:
+          type: string
+          description: TMDb poster image path
+          maxLength: 255
+        poster_url:
+          type: string
+          readOnly: true
+        backdrop_path:
+          type: string
+          description: TMDb backdrop image path
+          maxLength: 255
+        backdrop_url:
+          type: string
+          readOnly: true
+        rating_percentage:
+          type: string
+          readOnly: true
+        genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+          readOnly: true
+        original_language:
+          type: string
+          description: Original language code
+          maxLength: 10
+        adult:
+          type: boolean
+          description: Adult content flag
+        is_favorited:
+          type: boolean
+          readOnly: true
+        user_rating:
+          type: integer
+          readOnly: true
+      required:
+      - backdrop_url
+      - genres
+      - id
+      - is_favorited
+      - poster_url
+      - rating_percentage
+      - release_year
+      - title
+      - tmdb_id
+      - user_rating
+    MovieSearchResponse:
+      type: object
+      description: Serializer for movie search response.
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/MovieList'
+        total_results:
+          type: integer
+        total_pages:
+          type: integer
+        page:
+          type: integer
+      required:
+      - page
+      - results
+      - total_pages
+      - total_results
+    PaginatedFavoriteList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Favorite'
+    PaginatedGenreList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+    PaginatedRatingList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rating'
+    PaginatedWatchlistList:
+      type: object
+      required:
+      - count
+      - results
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Watchlist'
+    PatchedUserProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+    PreferredDecadeEnum:
+      enum:
+      - 2020s
+      - 2010s
+      - 2000s
+      - 1990s
+      - 1980s
+      - classic
+      type: string
+      description: |-
+        * `2020s` - 2020s
+        * `2010s` - 2010s
+        * `2000s` - 2000s
+        * `1990s` - 1990s
+        * `1980s` - 1980s
+        * `classic` - Classic (before 1980)
+    PriorityEnum:
+      enum:
+      - low
+      - medium
+      - high
+      type: string
+      description: |-
+        * `low` - Low Priority
+        * `medium` - Medium Priority
+        * `high` - High Priority
+    Rating:
+      type: object
+      description: Serializer for Rating model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        movie:
+          allOf:
+          - $ref: '#/components/schemas/MovieList'
+          readOnly: true
+        rating:
+          allOf:
+          - $ref: '#/components/schemas/RatingEnum'
+          description: |-
+            Rating from 1-5 stars
+
+            * `1` - ★☆☆☆☆ (1 star)
+            * `2` - ★★☆☆☆ (2 stars)
+            * `3` - ★★★☆☆ (3 stars)
+            * `4` - ★★★★☆ (4 stars)
+            * `5` - ★★★★★ (5 stars)
+          minimum: 1
+          maximum: 5
+        rating_display:
+          type: string
+          readOnly: true
+        review:
+          type: string
+          description: Optional written review
+          maxLength: 1000
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - movie
+      - rating
+      - rating_display
+      - updated_at
+      - user_email
+    RatingCreateUpdateRequest:
+      type: object
+      description: Serializer for creating/updating ratings.
+      properties:
+        rating:
+          allOf:
+          - $ref: '#/components/schemas/RatingEnum'
+          description: |-
+            Rating from 1-5 stars
+
+            * `1` - ★☆☆☆☆ (1 star)
+            * `2` - ★★☆☆☆ (2 stars)
+            * `3` - ★★★☆☆ (3 stars)
+            * `4` - ★★★★☆ (4 stars)
+            * `5` - ★★★★★ (5 stars)
+          minimum: 1
+          maximum: 5
+        review:
+          type: string
+          description: Optional written review
+          maxLength: 1000
+      required:
+      - rating
+    RatingEnum:
+      enum:
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      type: integer
+      description: |-
+        * `1` - ★☆☆☆☆ (1 star)
+        * `2` - ★★☆☆☆ (2 stars)
+        * `3` - ★★★☆☆ (3 stars)
+        * `4` - ★★★★☆ (4 stars)
+        * `5` - ★★★★★ (5 stars)
+    SuccessResponse:
+      type: object
+      description: Serializer for success responses.
+      properties:
+        message:
+          type: string
+        data: {}
+      required:
+      - message
+    UserPreference:
+      type: object
+      description: Serializer for UserPreference model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        favorite_genres:
+          type: array
+          items:
+            $ref: '#/components/schemas/Genre'
+          readOnly: true
+        favorite_genre_names:
+          type: string
+          readOnly: true
+        min_rating:
+          type: number
+          format: double
+          maximum: 10.0
+          minimum: 0.0
+          description: Minimum TMDb rating for recommendations
+        preferred_decade:
+          description: |-
+            Preferred movie decade
+
+            * `2020s` - 2020s
+            * `2010s` - 2010s
+            * `2000s` - 2000s
+            * `1990s` - 1990s
+            * `1980s` - 1980s
+            * `classic` - Classic (before 1980)
+          oneOf:
+          - $ref: '#/components/schemas/PreferredDecadeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        include_adult:
+          type: boolean
+          description: Include adult content
+        preferred_languages:
+          description: Preferred movie languages
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - favorite_genre_names
+      - favorite_genres
+      - id
+      - updated_at
+      - user_email
+    UserPreferenceUpdateRequest:
+      type: object
+      description: Serializer for updating user preferences.
+      properties:
+        favorite_genre_ids:
+          type: array
+          items:
+            type: integer
+          writeOnly: true
+          description: List of genre IDs
+        min_rating:
+          type: number
+          format: double
+          maximum: 10.0
+          minimum: 0.0
+          description: Minimum TMDb rating for recommendations
+        preferred_decade:
+          description: |-
+            Preferred movie decade
+
+            * `2020s` - 2020s
+            * `2010s` - 2010s
+            * `2000s` - 2000s
+            * `1990s` - 1990s
+            * `1980s` - 1980s
+            * `classic` - Classic (before 1980)
+          oneOf:
+          - $ref: '#/components/schemas/PreferredDecadeEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+        include_adult:
+          type: boolean
+          description: Include adult content
+        preferred_languages:
+          description: Preferred movie languages
+    UserProfile:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          readOnly: true
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+      required:
+      - email
+      - first_name
+      - last_name
+    UserProfileRequest:
+      type: object
+      properties:
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+      required:
+      - first_name
+      - last_name
+    UserRegistration:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        first_name:
+          type: string
+          maxLength: 30
+        last_name:
+          type: string
+          maxLength: 30
+      required:
+      - email
+      - first_name
+      - last_name
+    UserRegistrationRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          maxLength: 254
+        first_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+        last_name:
+          type: string
+          minLength: 1
+          maxLength: 30
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+    Watchlist:
+      type: object
+      description: Serializer for Watchlist model.
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        movie:
+          allOf:
+          - $ref: '#/components/schemas/MovieList'
+          readOnly: true
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        notes:
+          type: string
+          description: Personal notes about this movie
+          maxLength: 500
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - movie
+      - user_email
+    WatchlistCreateUpdateRequest:
+      type: object
+      description: Serializer for creating/updating watchlist items.
+      properties:
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        notes:
+          type: string
+          description: Personal notes about this movie
+          maxLength: 500
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

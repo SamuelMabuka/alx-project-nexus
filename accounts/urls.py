@@ -1,30 +1,38 @@
 # accounts/urls.py
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView as BaseTokenRefreshView
-from .views import (
-    UserRegistrationView,
-    UserLoginView,
-    UserProfileView,
-    UserLogoutView,
-    TokenRefreshView,
-    user_stats,
-    change_password
-)
+from django.http import JsonResponse
+from . import views
+
+def auth_info(request):
+    """Base authentication info endpoint."""
+    return JsonResponse({
+        'message': 'Nexus Movie API Authentication',
+        'endpoints': {
+            'register': '/api/auth/register/',
+            'login': '/api/auth/login/',
+            'profile': '/api/auth/profile/',
+            'change_password': '/api/auth/change-password/',
+            'logout': '/api/auth/logout/'
+        },
+        'authentication': {
+            'type': 'JWT (JSON Web Token)',
+            'header': 'Authorization: Bearer <access_token>',
+            'note': 'Use /api/auth/login/ to get access and refresh tokens'
+        },
+        'status': 'available'
+    })
 
 # Define URL patterns for the accounts app
 urlpatterns = [
+    # Base auth info endpoint
+    path('', auth_info, name='auth-info'),
+    
     # Authentication endpoints
-    path('register/', UserRegistrationView.as_view(), name='user-register'),
-    path('login/', UserLoginView.as_view(), name='user-login'),
-    path('logout/', UserLogoutView.as_view(), name='user-logout'),
-    
-    # Token management
-    path('token/refresh/', TokenRefreshView.as_view(), name='token-refresh'),
-    
-    # User profile management
-    path('profile/', UserProfileView.as_view(), name='user-profile'),
-    path('stats/', user_stats, name='user-stats'),
-    path('change-password/', change_password, name='change-password'),
+    path('register/', views.register_view, name='register'),
+    path('login/', views.CustomTokenObtainPairView.as_view(), name='login'),
+    path('profile/', views.profile_view, name='profile'),
+    path('change-password/', views.change_password, name='change-password'),
+    path('logout/', views.logout_view, name='logout'),
 ]
 
 """
@@ -34,7 +42,8 @@ URL Mapping Summary:
 POST /api/auth/register/         → Register new user
 POST /api/auth/login/            → User login (get JWT tokens)
 POST /api/auth/logout/           → User logout (blacklist token)
-POST /api/auth/token/refresh/    → Refresh JWT access token
+    
+# Removed token management as it's now handled by CustomTokenObtainPairView
 
 GET  /api/auth/profile/          → Get current user profile
 PUT  /api/auth/profile/          → Update user profile (full)

@@ -16,43 +16,35 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
-from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from django.http import JsonResponse
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
+import logging
 
-# Health check endpoint
+logger = logging.getLogger(__name__)
+
 def health_check(request):
     """Simple health check endpoint."""
     return JsonResponse({
         'status': 'healthy',
-        'service': 'Nexus Movie Recommendation API',
+        'service': 'Nexus Movie API',
         'version': '1.0.0'
     })
 
-# Main URL patterns
 urlpatterns = [
-    # Admin interface
+    # Admin and core endpoints
     path('admin/', admin.site.urls),
+    path('health/', health_check, name='health-check'),
     
-    # API Documentation (Swagger)
+    # API documentation
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     
-    # API Endpoints
-    path('api/auth/', include('accounts.urls')),  # Authentication endpoints
-    path('api/movies/', include('movies.urls')),  # Movie endpoints (we'll create this next)
+    # Authentication endpoints (keep these - they work)
+    path('api/auth/', include('accounts.urls')),
     
-    # Health check
-    path('health/', health_check, name='health-check'),
-    path('', health_check),  # Root endpoint
+    # Movie endpoints - NOW WORKING WITH SIMPLE VIEWS
+    path('api/movies/', include('movies.urls')),
 ]
-
-# Serve media files in development
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 # Custom admin configuration
 admin.site.site_header = "Nexus Movie Backend Administration"
