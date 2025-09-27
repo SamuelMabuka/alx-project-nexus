@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse
+from django.shortcuts import render
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 import logging
 
@@ -30,6 +31,10 @@ def health_check(request):
         'version': '1.0.0'
     })
 
+def search_page(request):
+    """Simple HTML search interface."""
+    return render(request, 'search.html')
+
 def api_root(request):
     """Main API entry point with navigation."""
     base_url = request.build_absolute_uri('/')
@@ -42,6 +47,7 @@ def api_root(request):
         
         # Quick Actions - Direct links users can click
         'quick_actions': {
+            'search_interface': f'{base_url}search/',  # ADD THIS LINE
             'browse_api_docs': f'{base_url}api/docs/',
             'test_search': f'{base_url}api/movies/search/?query=avengers',
             'view_popular_movies': f'{base_url}api/movies/popular/',
@@ -89,6 +95,7 @@ def api_root(request):
         'documentation': {
             'interactive_docs': f'{base_url}api/docs/',
             'api_schema': f'{base_url}api/schema/',
+            'search_interface': f'{base_url}search/',  # ADD THIS LINE
             'browsable_api': 'Click any endpoint above to explore interactively'
         },
         
@@ -106,16 +113,19 @@ def api_root(request):
         # Usage Instructions
         'getting_started': {
             '1_explore': 'Visit /api/docs/ for interactive documentation',
-            '2_register': 'POST to /api/auth/register/ to create account',
-            '3_login': 'POST to /api/auth/login/ to get JWT tokens',
-            '4_search': 'GET /api/movies/search/?query=YOUR_SEARCH to find movies',
+            '2_search': 'Visit /search/ for simple search interface',  # ADD THIS LINE
+            '3_register': 'POST to /api/auth/register/ to create account',
+            '4_login': 'POST to /api/auth/login/ to get JWT tokens',
             '5_interact': 'Use JWT token to rate, favorite, and get recommendations'
         }
     })
 
 urlpatterns = [
-    # Root endpoint - ADD THIS
+    # Root endpoint
     path('', api_root, name='api-root'),
+    
+    # Simple search interface - ADD THIS LINE
+    path('search/', search_page, name='search-page'),
     
     # Admin and core endpoints
     path('admin/', admin.site.urls),
@@ -125,10 +135,10 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     
-    # Authentication endpoints (keep these - they work)
+    # Authentication endpoints
     path('api/auth/', include('accounts.urls')),
     
-    # Movie endpoints - NOW WORKING WITH SIMPLE VIEWS
+    # Movie endpoints
     path('api/movies/', include('movies.urls')),
 ]
 

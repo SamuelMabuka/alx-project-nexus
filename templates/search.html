@@ -1,0 +1,335 @@
+<!-- Create templates/search.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎬 Nexus Movie Search</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .search-section {
+            padding: 40px;
+            background: #f8f9fa;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 15px 20px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            outline: none;
+            transition: border-color 0.3s;
+            min-width: 300px;
+        }
+        
+        .search-input:focus {
+            border-color: #3498db;
+        }
+        
+        .search-button {
+            padding: 15px 30px;
+            font-size: 16px;
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-weight: bold;
+        }
+        
+        .search-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        .quick-searches {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .quick-search-btn {
+            padding: 8px 16px;
+            background: #e9ecef;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+        }
+        
+        .quick-search-btn:hover {
+            background: #dee2e6;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .results {
+            background: white;
+            border-radius: 10px;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .movie-card {
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .movie-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .movie-title {
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+        
+        .movie-info {
+            color: #666;
+            margin-bottom: 10px;
+        }
+        
+        .api-links {
+            background: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .api-links h3 {
+            margin-bottom: 20px;
+            color: #2c3e50;
+        }
+        
+        .api-link {
+            display: inline-block;
+            margin: 10px;
+            padding: 12px 24px;
+            background: #3498db;
+            color: white;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: background 0.2s;
+        }
+        
+        .api-link:hover {
+            background: #2980b9;
+        }
+        
+        @media (max-width: 600px) {
+            .search-form {
+                flex-direction: column;
+            }
+            
+            .search-input {
+                min-width: unset;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎬 Nexus Movie Search</h1>
+            <p>Discover your favorite movies with our powerful search engine</p>
+        </div>
+        
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-form">
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    class="search-input" 
+                    placeholder="Search for movies (e.g., Avengers, Batman, Spider-Man)..."
+                    onkeypress="handleKeyPress(event)"
+                />
+                <button onclick="searchMovies()" class="search-button">
+                    🔍 Search Movies
+                </button>
+            </div>
+            
+            <!-- Quick Search Options -->
+            <div class="quick-searches">
+                <strong>Quick searches:</strong>
+                <button class="quick-search-btn" onclick="quickSearch('avengers')">Avengers</button>
+                <button class="quick-search-btn" onclick="quickSearch('batman')">Batman</button>
+                <button class="quick-search-btn" onclick="quickSearch('spider-man')">Spider-Man</button>
+                <button class="quick-search-btn" onclick="quickSearch('marvel')">Marvel</button>
+                <button class="quick-search-btn" onclick="quickSearch('star wars')">Star Wars</button>
+            </div>
+            
+            <!-- Loading indicator -->
+            <div id="loading" class="loading">
+                🎬 Searching movies... Please wait!
+            </div>
+            
+            <!-- Search Results -->
+            <div id="results" class="results"></div>
+        </div>
+        
+        <!-- API Links -->
+        <div class="api-links">
+            <h3>🚀 Explore More Features</h3>
+            <a href="/api/docs/" class="api-link">📖 API Documentation</a>
+            <a href="/api/movies/popular/" class="api-link">🔥 Popular Movies</a>
+            <a href="/api/movies/trending/" class="api-link">📈 Trending Movies</a>
+            <a href="/api/auth/" class="api-link">🔐 Authentication</a>
+            <a href="/" class="api-link">🏠 API Home</a>
+        </div>
+    </div>
+
+    <script>
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchMovies();
+            }
+        }
+        
+        function quickSearch(query) {
+            document.getElementById('searchInput').value = query;
+            searchMovies();
+        }
+        
+        function searchMovies() {
+            const query = document.getElementById('searchInput').value.trim();
+            const loading = document.getElementById('loading');
+            const results = document.getElementById('results');
+            
+            if (!query) {
+                alert('Please enter a movie to search for!');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            results.innerHTML = '';
+            
+            // Make API call
+            fetch(`/api/movies/search/?query=${encodeURIComponent(query)}`)
+                .then(response => response.json())
+                .then(data => {
+                    loading.style.display = 'none';
+                    displayResults(data, query);
+                })
+                .catch(error => {
+                    loading.style.display = 'none';
+                    results.innerHTML = `
+                        <div class="movie-card" style="border-color: #e74c3c; background: #fdf2f2;">
+                            <div class="movie-title" style="color: #e74c3c;">❌ Search Error</div>
+                            <div class="movie-info">
+                                Sorry, there was an error searching for movies. 
+                                Please try again or check the API documentation.
+                            </div>
+                        </div>
+                    `;
+                    console.error('Search error:', error);
+                });
+        }
+        
+        function displayResults(data, query) {
+            const results = document.getElementById('results');
+            
+            let html = `
+                <div class="movie-card" style="background: #e8f5e8; border-color: #28a745;">
+                    <div class="movie-title" style="color: #28a745;">
+                        ✅ Search Results for: "${query}"
+                    </div>
+                    <div class="movie-info">
+                        <strong>Status:</strong> ${data.status || 'Working'}<br>
+                        <strong>Query:</strong> ${data.query || query}<br>
+                        <strong>Endpoint:</strong> ${data.endpoint || '/api/movies/search/'}
+                    </div>
+                </div>
+            `;
+            
+            // Show the API response
+            html += `
+                <div class="movie-card">
+                    <div class="movie-title">📋 API Response</div>
+                    <div class="movie-info">
+                        <strong>This is your backend API response:</strong>
+                    </div>
+                    <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${JSON.stringify(data, null, 2)}</pre>
+                </div>
+            `;
+            
+            // Show example of what real movie data would look like
+            if (data.example_response && data.example_response.results) {
+                html += `
+                    <div class="movie-card" style="background: #fff3cd; border-color: #ffc107;">
+                        <div class="movie-title" style="color: #856404;">🎬 Example Movie Result</div>
+                        <div class="movie-info">
+                            <strong>This shows how real movie data will look:</strong>
+                        </div>
+                        <pre style="background: #f8f9fa; padding: 15px; border-radius: 8px; overflow-x: auto; font-size: 12px;">${JSON.stringify(data.example_response.results[0], null, 2)}</pre>
+                    </div>
+                `;
+            }
+            
+            results.innerHTML = html;
+        }
+        
+        // Auto-focus search input when page loads
+        window.addEventListener('load', function() {
+            document.getElementById('searchInput').focus();
+        });
+    </script>
+</body>
+</html>
