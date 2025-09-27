@@ -24,7 +24,7 @@
 ### Local Development
 ```bash
 # Clone and setup
-git clone https://github.com/yourusername/nexus-movie-api.git
+git clone https://github.com/SamuelMabuka/nexus-movie-api.git
 cd nexus-movie-api
 python -m venv nex_env
 source nex_env/bin/activate  # Windows: nex_env\Scripts\activate
