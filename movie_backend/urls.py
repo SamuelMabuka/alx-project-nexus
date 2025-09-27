@@ -30,7 +30,37 @@ def health_check(request):
         'version': '1.0.0'
     })
 
+def api_root(request):
+    """API root endpoint with navigation."""
+    return JsonResponse({
+        'message': 'Welcome to Nexus Movie API',
+        'version': '1.0.0',
+        'status': 'live',
+        'endpoints': {
+            'health': '/health/',
+            'authentication': '/api/auth/',
+            'movies': '/api/movies/',
+            'api_documentation': '/api/docs/',
+            'api_schema': '/api/schema/',
+            'admin': '/admin/'
+        },
+        'features': [
+            'JWT Authentication',
+            'Movie Discovery & Search',
+            'User Ratings & Reviews',
+            'Favorites & Watchlist',
+            'Personalized Recommendations',
+            'User Statistics & Preferences'
+        ],
+        'documentation': 'https://movie-api-etrv.onrender.com/api/docs/',
+        'github': 'Your GitHub repository URL',
+        'developer': 'Nexus Development Team'
+    })
+
 urlpatterns = [
+    # Root endpoint - ADD THIS
+    path('', api_root, name='api-root'),
+    
     # Admin and core endpoints
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health-check'),
