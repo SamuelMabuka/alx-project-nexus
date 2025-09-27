@@ -17,6 +17,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning, module="pkg_resou
 from pathlib import Path
 from decouple import config
 from datetime import timedelta
+import os
 
 # ENABLE Redis for production-grade caching
 USE_REDIS_CACHE = True  # Set to True since Redis is installed
@@ -356,6 +357,51 @@ LOGGING = {
     },
 }
 
+# Override logging configuration for cloud deployment
+if 'RENDER' in os.environ or not DEBUG:
+    # Simplified logging for production - use console only
+    LOGGING = {
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'verbose': {
+                'format': '{levelname} {asctime} {module} {message}',
+                'style': '{',
+            },
+            'simple': {
+                'format': '{levelname} {message}',
+                'style': '{',
+            },
+        },
+        'handlers': {
+            'console': {
+                'class': 'logging.StreamHandler',
+                'formatter': 'verbose',
+            },
+        },
+        'root': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        },
+        'loggers': {
+            'django': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'movies': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+            'accounts': {
+                'handlers': ['console'],
+                'level': 'INFO',
+                'propagate': False,
+            },
+        },
+    }
+
 # ==========================================
 # SECURITY SETTINGS
 # ==========================================
@@ -433,3 +479,29 @@ if not DEBUG:
 # Update ALLOWED_HOSTS for Railway
 current_hosts = config('ALLOWED_HOSTS', default='localhost,127.0.0.1').split(',')
 ALLOWED_HOSTS = current_hosts + ['.railway.app', '.up.railway.app']
+
+# Add this to detect Render environment in settings.py
+
+# Render.com deployment detection
+if 'RENDER' in os.environ:
+    DEBUG = False
+    ALLOWED_HOSTS = [
+        os.environ.get('RENDER_EXTERNAL_HOSTNAME', ''),
+        '.onrender.com',
+        'localhost',
+        '127.0.0.1'
+    ]
+    
+    # Use PostgreSQL on Render
+    if 'DATABASE_URL' in os.environ:
+        import dj_database_url
+        DATABASES = {
+            'default': dj_database_url.parse(
+                os.environ.get('DATABASE_URL'),
+                conn_max_age=600,
+                conn_health_checks=True,
+            )
+        }
+    
+    # Disable file-based logging on Render
+    # (Already handled by LOGGING config above)
