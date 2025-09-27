@@ -505,3 +505,44 @@ if 'RENDER' in os.environ:
     
     # Disable file-based logging on Render
     # (Already handled by LOGGING config above)
+
+# ==========================================
+# AUTO-CREATE SUPERUSER FOR RENDER
+# ==========================================
+if 'RENDER' in os.environ:
+    import threading
+    import time
+    
+    def create_render_superuser():
+        """Create superuser for Render deployment"""
+        time.sleep(5)  # Wait for Django to fully initialize
+        
+        try:
+            from django.contrib.auth import get_user_model
+            User = get_user_model()
+            
+            # Check if any superuser exists
+            if not User.objects.filter(is_superuser=True).exists():
+                # Create superuser with these specific credentials
+                user = User.objects.create_superuser(
+                    email='admin@nexusmovies.com',
+                    password='NexusRender2024!',
+                    first_name='Nexus',
+                    last_name='Admin'
+                )
+                print("✅ RENDER SUPERUSER CREATED!")
+                print("📧 Email: admin@nexusmovies.com") 
+                print("🔐 Password: NexusRender2024!")
+                print("🌐 Login at: https://movie-api-etrv.onrender.com/admin/")
+                
+            else:
+                existing_user = User.objects.filter(is_superuser=True).first()
+                print(f"ℹ️ Superuser already exists: {existing_user.email}")
+                
+        except Exception as e:
+            print(f"⚠️ Error creating superuser: {e}")
+    
+    # Start the superuser creation in background
+    thread = threading.Thread(target=create_render_superuser)
+    thread.daemon = True
+    thread.start()
