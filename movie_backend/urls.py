@@ -17,7 +17,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.http import JsonResponse, HttpResponse
-from django.shortcuts import render
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 import logging
 
@@ -28,7 +27,8 @@ def health_check(request):
     return JsonResponse({
         'status': 'healthy',
         'service': 'Nexus Movie API',
-        'version': '1.0.0'
+        'version': '1.0.0',
+        'timestamp': '2025-09-27'
     })
 
 def search_page(request):
@@ -83,7 +83,8 @@ def search_page(request):
             <div class="api-links">
                 <a href="/api/docs/" class="api-link">📖 API Docs</a>
                 <a href="/api/movies/popular/" class="api-link">🔥 Popular</a>
-                <a href="/" class="api-link">🏠 API Home</a>
+                <a href="/api/movies/" class="api-link">🎬 Movies API</a>
+                <a href="/api/auth/" class="api-link">🔐 Auth API</a>
             </div>
         </div>
         
@@ -134,98 +135,30 @@ def search_page(request):
     return HttpResponse(html)
 
 def api_root(request):
-    """Main API entry point with navigation."""
-    base_url = request.build_absolute_uri('/')
-    
+    """Clean API root with basic information."""
     return JsonResponse({
-        'welcome': 'Nexus Movie Recommendation API',
+        'message': 'Welcome to Nexus Movie API',
         'version': '1.0.0',
         'status': 'live',
-        'base_url': base_url,
-        
-        # Quick Actions - Direct links users can click
-        'quick_actions': {
-            'search_interface': f'{base_url}search/',  # ADD THIS LINE
-            'browse_api_docs': f'{base_url}api/docs/',
-            'test_search': f'{base_url}api/movies/search/?query=avengers',
-            'view_popular_movies': f'{base_url}api/movies/popular/',
-            'view_trending': f'{base_url}api/movies/trending/',
-            'health_check': f'{base_url}health/',
+        'endpoints': {
+            'health': '/health/',
+            'search_interface': '/search/',
+            'api_documentation': '/api/docs/',
+            'authentication': '/api/auth/',
+            'movies': '/api/movies/',
+            'admin': '/admin/'
         },
-        
-        # Main API Sections
-        'api_sections': {
-            'authentication': {
-                'base': f'{base_url}api/auth/',
-                'description': 'User registration, login, and profile management',
-                'endpoints': {
-                    'register': f'{base_url}api/auth/register/',
-                    'login': f'{base_url}api/auth/login/',
-                    'profile': f'{base_url}api/auth/profile/',
-                    'change_password': f'{base_url}api/auth/change-password/',
-                    'logout': f'{base_url}api/auth/logout/'
-                }
-            },
-            'movies': {
-                'base': f'{base_url}api/movies/',
-                'description': 'Movie discovery, search, and user interactions',
-                'endpoints': {
-                    'search': f'{base_url}api/movies/search/?query=YOUR_SEARCH',
-                    'popular': f'{base_url}api/movies/popular/',
-                    'trending': f'{base_url}api/movies/trending/',
-                    'genres': f'{base_url}api/movies/genres/',
-                    'movie_details': f'{base_url}api/movies/550/',
-                    'favorites': f'{base_url}api/movies/favorites/',
-                    'ratings': f'{base_url}api/movies/ratings/',
-                    'watchlist': f'{base_url}api/movies/watchlist/',
-                    'recommendations': f'{base_url}api/movies/recommendations/',
-                    'user_stats': f'{base_url}api/movies/stats/'
-                }
-            },
-            'admin': {
-                'base': f'{base_url}admin/',
-                'description': 'Django administration interface',
-                'note': 'Requires superuser credentials'
-            }
-        },
-        
-        # Documentation & Tools
-        'documentation': {
-            'interactive_docs': f'{base_url}api/docs/',
-            'api_schema': f'{base_url}api/schema/',
-            'search_interface': f'{base_url}search/',  # ADD THIS LINE
-            'browsable_api': 'Click any endpoint above to explore interactively'
-        },
-        
-        # Features Summary
-        'features': [
-            'JWT Authentication System',
-            'Movie Search & Discovery',
-            'User Ratings & Reviews', 
-            'Favorites & Watchlist Management',
-            'Personalized Recommendations',
-            'User Statistics & Preferences',
-            'Interactive API Documentation'
-        ],
-        
-        # Usage Instructions
-        'getting_started': {
-            '1_explore': 'Visit /api/docs/ for interactive documentation',
-            '2_search': 'Visit /search/ for simple search interface',  # ADD THIS LINE
-            '3_register': 'POST to /api/auth/register/ to create account',
-            '4_login': 'POST to /api/auth/login/ to get JWT tokens',
-            '5_interact': 'Use JWT token to rate, favorite, and get recommendations'
-        }
+        'documentation': 'Visit /api/docs/ for complete API documentation'
     })
 
 urlpatterns = [
-    # Root endpoint
+    # Root endpoint - Clean and simple
     path('', api_root, name='api-root'),
     
-    # Simple search interface - ADD THIS LINE
+    # Search interface
     path('search/', search_page, name='search-page'),
     
-    # Admin and core endpoints
+    # Core endpoints
     path('admin/', admin.site.urls),
     path('health/', health_check, name='health-check'),
     
@@ -233,10 +166,8 @@ urlpatterns = [
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     
-    # Authentication endpoints
+    # Application endpoints
     path('api/auth/', include('accounts.urls')),
-    
-    # Movie endpoints
     path('api/movies/', include('movies.urls')),
 ]
 
